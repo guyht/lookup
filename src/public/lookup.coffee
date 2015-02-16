@@ -9,6 +9,7 @@ $ ->
     Model = Backbone.Model.extend (
         defaults: (
             term: null
+            monster: null
             originalLookup: null
             definitions: null
             chosenIndex: null
@@ -23,6 +24,7 @@ $ ->
 
         bindings: (
             '.query-name' : 'term'
+            '.learndb-monster' : 'monster'
             '.learndb-results': (
                 observe: 'definitions'
                 updateMethod: 'html'
@@ -40,7 +42,7 @@ $ ->
 
         _doUpdate: ->
             console.log 'hi'
-            socket.emit 'lookup', @$el.find('[name=lookup]').val(), (res) =>
+            socket.emit 'lookup', @$el.find('[name=lookup]').val(), (err, res) =>
                 @model.set res
     )
 

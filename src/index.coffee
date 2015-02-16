@@ -7,6 +7,7 @@ log = require('glogger')('LOOKUP-DB')
 express = require 'express'
 server = require('http')
 socket = require('socket.io')
+spawn = require './spawn_child'
 
 request = require 'superagent'
 # Express modules
@@ -38,7 +39,7 @@ io.on 'connection', (sock) ->
         # Get data from API
         log.info "Looking up #{query}"
         lookup query, (err, data) ->
-            cb data
+            cb null, data
 
 # This is a 1 page shop, so just do a catchall
 app.all '/', (req, res) ->
@@ -62,9 +63,18 @@ lookup = (query, cb) ->
 
             log.info "Got good response from server - #{data.status}"
             log.debug data.text
-            # Add to cache
-            cache[query] = data.body
-            cb null, data.body
+
+
+            # Lookup monster
+            spawn './monster-trunk ' + query, (err, monster) ->
+                log.debug monster
+
+
+                # Add to cache
+                re = data.body
+                re.monster = monster
+                cache[query] = re
+                cb null, cache[query]
 
 
 
