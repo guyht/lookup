@@ -1,0 +1,38 @@
+doctype html
+head
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/normalize.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/foundation.min.css')
+
+
+
+
+body
+    .row
+        .columns.small-12
+            .text-center
+                h1 Lookup DB
+
+
+    #learndb-view
+        .row
+            .columns.small-12
+                form#lookup-form
+                    .row
+                        .columns.small-12
+                            input.lookup(type='text', name='lookup')
+        .row
+            .columns.small-12
+                h4.query-name
+                p.learndb-results
+
+
+
+
+    //- Scripts
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/js/foundation.min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/backbone.stickit/0.8.0/backbone.stickit.min.js')
+    script(type='text/javascript', src='/socket.io/socket.io.js')
+    script(type='text/javascript', src='/js/lookup.js')

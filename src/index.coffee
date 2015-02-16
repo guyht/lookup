@@ -1,0 +1,74 @@
+
+# Lookup DB
+#
+
+# Dependencies
+log = require('glogger')('LOOKUP-DB')
+express = require 'express'
+server = require('http')
+socket = require('socket.io')
+
+request = require 'superagent'
+# Express modules
+bp = require 'body-parser'
+
+api_base = 'https://loom.shalott.org/api/sequell/ldb'
+
+# Choose port
+port = process.env.PORT || 8080
+
+log.info "Loading app on port #{port}"
+
+# Basic cache
+cache = {}
+
+# Load up app
+app = express()
+ser = server.Server app
+io = socket ser
+app.use bp.urlencoded()
+app.use(express.static('./public'))
+
+
+# Setup socket route for API
+io.on 'connection', (sock) ->
+    log.info "Handling socket.io connection"
+
+    sock.on 'lookup', (query, cb) ->
+        # Get data from API
+        log.info "Looking up #{query}"
+        lookup query, (err, data) ->
+            cb data
+
+# This is a 1 page shop, so just do a catchall
+app.all '/', (req, res) ->
+    log.info "Serving request"
+    res.render 'index.jade'
+
+
+# Func to lookup
+lookup = (query, cb) ->
+    # If cached, return now
+    if cache[query]? then return cb null, cache[query]
+
+    # Not cached, look it up
+    request.get api_base
+        .query (term: query)
+        .end (err, data) ->
+            if err
+                # Generally means not found (for some reason we dont return JSON here... this is a bug really)
+                log.error err
+                return cb err
+
+            log.info "Got good response from server - #{data.status}"
+            log.debug data.text
+            # Add to cache
+            cache[query] = data.body
+            cb null, data.body
+
+
+
+ser.listen port
+
+# for testing
+module.exports = app
