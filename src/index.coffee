@@ -1,4 +1,3 @@
-
 # Lookup DB
 #
 
@@ -8,6 +7,7 @@ express = require 'express'
 server = require('http')
 socket = require('socket.io')
 spawn = require './spawn_child'
+ansi_up = require 'ansi_up'
 
 request = require 'superagent'
 # Express modules
@@ -66,13 +66,13 @@ lookup = (query, cb) ->
 
 
             # Lookup monster
-            spawn './monster-trunk ' + query, (err, monster) ->
+            spawn './monster-trunk', [query], {}, (err, monster) ->
                 log.debug monster
 
 
                 # Add to cache
                 re = data.body
-                re.monster = monster
+                re.monster = ansi_up.ansi_to_html monster.toString()
                 cache[query] = re
                 cb null, cache[query]
 

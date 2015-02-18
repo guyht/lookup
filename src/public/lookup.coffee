@@ -24,7 +24,10 @@ $ ->
 
         bindings: (
             '.query-name' : 'term'
-            '.learndb-monster' : 'monster'
+            '.learndb-monster' : (
+                observe: 'monster'
+                updateMethod: 'html'
+            )
             '.learndb-results': (
                 observe: 'definitions'
                 updateMethod: 'html'
@@ -41,7 +44,6 @@ $ ->
             @stickit()
 
         _doUpdate: ->
-            console.log 'hi'
             socket.emit 'lookup', @$el.find('[name=lookup]').val(), (err, res) =>
                 @model.set res
     )
@@ -55,4 +57,3 @@ $ ->
 
     # Render view to initialize bindings
     view.render()
-
