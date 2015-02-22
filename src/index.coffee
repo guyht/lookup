@@ -73,16 +73,16 @@ lookup = (query, cb) ->
                 # Lets have a string
                 monsterStr = monster.toString()
 
-                # Was monster found?
-                if monsterStr.match 'unknown monster:'
-                    # Return a null value
-                    monsterStr = null
-
                 # Setup an object we can send back to the client
                 re = data.body
 
-                # Add the monster and render the console escape codes to html
-                re.monster = ansi_up.ansi_to_html monsterStr
+                # Was monster found?
+                if monsterStr.match 'unknown monster:'
+                    # Return a null value
+                    re.monster = null
+                else
+                    # Add the monster and render the console escape codes to html
+                    re.monster = ansi_up.ansi_to_html monsterStr
 
                 # Cache the result
                 cache[query] = re
