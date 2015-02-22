@@ -21,6 +21,9 @@ $ ->
 
     View = Backbone.View.extend (
 
+        initialize: (@options) ->
+            @on 'doUpdate', @_doUpdate()
+
         events: (
             #'input .lookup' : '_doUpdate'
             # Prevent form submit
@@ -59,9 +62,9 @@ $ ->
             @$el.find('.spinner').css 'visibility', (if visible then '' else 'hidden')
 
         _doUpdate: ->
+            # Update the browser URL
+            @options.router.navigate 'term/' + @model.get('term')
             @_loadAnim true
-            console.log 'looking up'
-            console.log @model.get 'term'
             socket.emit 'lookup', @model.get('term'), (err, res) =>
                 @model.set res
                 @_loadAnim false
@@ -70,15 +73,14 @@ $ ->
 
 
 
-    model = new Model()
-    view = new View (
-        el: '#learndb-view'
-        model: model
-    )
+
+
 
 
     # Setup router
-    router = Backbone.Router.extend (
+    Router = Backbone.Router.extend (
+
+        initialize: (@options) ->
 
         # Setup route definitions
         routes: (
@@ -87,9 +89,22 @@ $ ->
 
         # Handle routing
         search_term: (term) ->
-            model.set 'term', term
-            model._doUPdate()
+            @options.model.set 'term', term
+            @options.model.trigger 'doUpdate'
     )
+
+
+    model = new Model()
+    router = new Router (model: model)
+
+
+    view = new View (
+        el: '#learndb-view'
+        model: model
+        router: router
+    )
+
+    Backbone.history.start()
 
 
     # Render view to initialize bindings
