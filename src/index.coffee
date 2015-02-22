@@ -58,6 +58,7 @@ lookup = (query, cb) ->
         .end (err, data) ->
             if err
                 # Generally means not found (for some reason we dont return JSON here... this is a bug really)
+                log.error "Error occured making request to learndb API"
                 log.error err
                 return cb err
 
@@ -69,11 +70,24 @@ lookup = (query, cb) ->
             spawn './monster-trunk', [query], {}, (err, monster) ->
                 log.debug monster
 
+                # Lets have a string
+                monsterStr = monster.toString()
 
-                # Add to cache
+                # Was monster found?
+                if monsterStr.match 'unknown monster:'
+                    # Return a null value
+                    monsterStr = null
+
+                # Setup an object we can send back to the client
                 re = data.body
-                re.monster = ansi_up.ansi_to_html monster.toString()
+
+                # Add the monster and render the console escape codes to html
+                re.monster = ansi_up.ansi_to_html monsterStr
+
+                # Cache the result
                 cache[query] = re
+
+                # Send back to the client
                 cb null, cache[query]
 
 

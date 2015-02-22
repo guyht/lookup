@@ -2,6 +2,7 @@ doctype html
 head
     link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/normalize.min.css')
     link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/foundation.min.css')
+    link(rel='stylesheet', href='/css/lookup.css')
 
 
 
@@ -17,14 +18,27 @@ body
         .row
             .columns.small-12
                 form#lookup-form
-                    .row
-                        .columns.small-12
-                            input.lookup(type='text', name='lookup')
+                    .row.collapse
+                        .columns.small-11
+                            input.lookup(type='text', name='lookup', placeholder='Lookup...')
+                        .columns.small-1
+                            button.button.postfix(type='submit') Go
+        .row
+            .columns.small-12
+                .spinner
+                    .bounce1
+                    .bounce2
+                    .bounce3
+
         .row
             .columns.small-12
                 h4.query-name
                 p.learndb-monster
                 p.learndb-results
+        
+        .row.footer
+            .columns.small-12.text-center
+                p <a href="https://github.com/guyht/lookup" target="_blank">Bugs, Issues, Development</a> | <a href="http://crawl.develz.org/wordpress/" target="_blank">Crawl home page</a>
 
 
 

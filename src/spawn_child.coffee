@@ -1,6 +1,6 @@
 # Wrapper to make spawns easier
 spawn = require('child_process').spawn
-log = require('glogger')('TANT-SPAWN')
+log = require('glogger')('SPAWN')
 
 # Utility to spawn a child process
 module.exports = spawn_child = (cmd, args, opt, cb) ->
