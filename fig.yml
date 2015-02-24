@@ -3,7 +3,7 @@ web:
     links:
         - redis
     ports:
-        - "8080:8090"
+        - "8090:8080"
 redis:
     image: redis
     
