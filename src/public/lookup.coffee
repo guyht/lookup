@@ -56,7 +56,7 @@ $ ->
                     r += '</ol>'
 
                     # Parse {...} to links
-                    r = r.replace /{(.+)}/g, "<a href='#term/$1'>$1</a>"
+                    r = r.replace /{(.+?)}/g, "<a href='#term/$1'>$1</a>"
 
                     return r
             )
