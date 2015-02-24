@@ -36,7 +36,7 @@ RUN curl -sL https://deb.nodesource.com/setup | bash -
 RUN apt-get install -y nodejs
 
 # Checkout lookup code
-ADD . lookup
+ADD . /dcss/lookup
 WORKDIR ./lookup
 
 # Symlink monster-trunk
