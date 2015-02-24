@@ -22,7 +22,11 @@ $ ->
     View = Backbone.View.extend (
 
         initialize: (@options) ->
-            @on 'doUpdate', @_doUpdate()
+            # Setup router
+            router = @options.router
+            router.route 'term/:term', 'term', (term) =>
+                @model.set 'term', term
+                @_doUpdate()
 
         events: (
             #'input .lookup' : '_doUpdate'
@@ -48,7 +52,7 @@ $ ->
 
                     r = '<ol>'
                     for v in val
-                       r += '<li>' + v + '</li>'
+                       r += '<li>' + _.escape(v) + '</li>'
                     r += '</ol>'
                     return r
             )
@@ -82,20 +86,11 @@ $ ->
 
         initialize: (@options) ->
 
-        # Setup route definitions
-        routes: (
-            'term/:term' : 'search_term'
-        )
-
-        # Handle routing
-        search_term: (term) ->
-            @options.model.set 'term', term
-            @options.model.trigger 'doUpdate'
     )
 
 
     model = new Model()
-    router = new Router (model: model)
+    router = new Router()
 
 
     view = new View (

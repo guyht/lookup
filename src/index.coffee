@@ -65,6 +65,11 @@ lookup = (query, cb) ->
             log.info "Got good response from server - #{data.status}"
             log.debug data.text
 
+            # If 404, then we had no result
+            if data.status is 404
+                log.info "404 status - no result"
+                cb null, {}
+
 
             # Lookup monster
             spawn './monster-trunk', [query], {}, (err, monster) ->
@@ -90,6 +95,12 @@ lookup = (query, cb) ->
                 # Send back to the client
                 cb null, cache[query]
 
+
+# Clear cache every 24 hours
+setInterval ->
+    console.log "Clearing cache"
+    cache = {}
+, 1000 * 60 * 24
 
 
 ser.listen port
