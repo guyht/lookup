@@ -54,6 +54,10 @@ $ ->
                     for v in val
                        r += '<li>' + _.escape(v) + '</li>'
                     r += '</ol>'
+
+                    # Parse {...} to links
+                    r = r.replace /{(.+)}/g, "<a href='#term/$1'>$1</a>"
+
                     return r
             )
         )
