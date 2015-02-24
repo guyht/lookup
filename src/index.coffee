@@ -6,8 +6,10 @@ log = require('glogger')('LOOKUP-DB')
 express = require 'express'
 server = require('http')
 socket = require('socket.io')
-spawn = require './spawn_child'
 ansi_up = require 'ansi_up'
+
+spawn = require './spawn_child'
+cache = require './cache'
 
 request = require 'superagent'
 # Express modules
@@ -19,9 +21,6 @@ api_base = 'https://loom.shalott.org/api/sequell/ldb'
 port = process.env.PORT || 8080
 
 log.info "Loading app on port #{port}"
-
-# Basic cache
-cache = {}
 
 # Load up app
 app = express()
@@ -46,54 +45,71 @@ app.all '/', (req, res) ->
     log.info "Serving request"
     res.render 'index.jade'
 
+app.all '/stat', (req, res) ->
+    cache.stats.get (err, data) ->
+        res.json data
+
 
 # Func to lookup
 lookup = (query, cb) ->
-    # If cached, return now
-    if cache[query]? then return cb null, cache[query]
 
-    # Not cached, look it up
-    request.get api_base
-        .query (term: query)
-        .end (err, data) ->
-            if err
-                # Generally means not found (for some reason we dont return JSON here... this is a bug really)
-                log.error "Error occured making request to learndb API"
-                log.error err
-                return cb err
+    cache.stats.query()
+    cache.stats.term query
 
-            log.info "Got good response from server - #{data.status}"
-            log.debug data.text
+    # Check cache
+    cache.get query, (err, data) ->
+        if data
+            # Cache hit
+            log.info "Cache HIT"
+            cache.stats.cacheHit()
 
-            # If 404, then we had no result
-            if data.status is 404
-                log.info "404 status - no result"
-                cb null, {}
+            cb null, JSON.parse data
+
+        else # Cache miss
+            log.info "Cache MISS"
+
+            # Not cached, look it up
+            request.get api_base
+                .query (term: query)
+                .end (err, data) ->
+                    if err
+                        # Generally means not found (for some reason we dont return JSON here... this is a bug really)
+                        log.error "Error occured making request to learndb API"
+                        log.error err
+                        return cb err
+
+                    log.info "Got good response from server - #{data.status}"
+                    log.debug data.text
+
+                    # If 404, then we had no result
+                    if data.status is 404
+                        log.info "404 status - no result"
+                        cb null, {}
 
 
-            # Lookup monster
-            spawn './monster-trunk', [query], {}, (err, monster) ->
-                log.debug monster
+                    # Lookup monster
+                    spawn './monster-trunk', [query], {}, (err, monster) ->
+                        log.debug monster
 
-                # Lets have a string
-                monsterStr = monster.toString()
+                        # Lets have a string
+                        monsterStr = monster.toString()
 
-                # Setup an object we can send back to the client
-                re = data.body
+                        # Setup an object we can send back to the client
+                        re = data.body
 
-                # Was monster found?
-                if monsterStr.match 'unknown monster:'
-                    # Return a null value
-                    re.monster = null
-                else
-                    # Add the monster and render the console escape codes to html
-                    re.monster = ansi_up.ansi_to_html monsterStr
+                        # Was monster found?
+                        if monsterStr.match 'unknown monster:'
+                            # Return a null value
+                            re.monster = null
+                        else
+                            # Add the monster and render the console escape codes to html
+                            re.monster = ansi_up.ansi_to_html monsterStr
 
-                # Cache the result
-                cache[query] = re
+                        # Cache the result
+                        cache.set query, JSON.stringify re
 
-                # Send back to the client
-                cb null, cache[query]
+                        # Send back to the client
+                        cb null, re
 
 
 # Clear cache every 24 hours

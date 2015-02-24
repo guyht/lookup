@@ -1,0 +1,9 @@
+web:
+    build: .
+    links:
+        - redis
+    ports:
+        - "8080:8090"
+redis:
+    image: redis
+    
