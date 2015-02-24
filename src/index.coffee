@@ -112,13 +112,6 @@ lookup = (query, cb) ->
                         cb null, re
 
 
-# Clear cache every 24 hours
-setInterval ->
-    console.log "Clearing cache"
-    cache = {}
-, 1000 * 60 * 24
-
-
 ser.listen port
 
 # for testing
