@@ -74,14 +74,44 @@ $ ->
             @options.router.navigate 'term/' + @model.get('term')
             @_loadAnim true
             socket.emit 'lookup', @model.get('term'), (err, res) =>
+                if err or !res then return # An error occured server side
+
                 @model.set res
                 @_loadAnim false
 
     )
 
 
+    StatsModel = Backbone.Model.extend (
+        defaults: (
+            queries: null
+            terms: null
+        )
+    )
 
+    StatsView = Backbone.View.extend (
+        initialize: (@opt) ->
 
+        bindings: (
+            '#counter' : 'queries'
+            '#popular' : (
+                observe: 'terms'
+                updateMethod: 'html'
+                onGet: (terms) ->
+                    if !terms then return ''
+                    r = []
+                    #c = if terms.length <= 5 then terms.length else 5
+
+                    for t in terms
+                        r.push '<li><a href="#term/' + t.term + '">' + t.term + '</a> - ' + t.count + ' hits </li>'
+
+                    return r.join ''
+            )
+        )
+
+        render: ->
+            @stickit()
+    )
 
 
 
@@ -103,8 +133,19 @@ $ ->
         router: router
     )
 
+
+    statsModel = new StatsModel()
+    statsView = new StatsView (
+        el: '#stats'
+        model: statsModel
+    )
+    socket.on 'stats', (data) ->
+        console.log data
+        statsModel.set data
+
     Backbone.history.start()
 
 
     # Render view to initialize bindings
     view.render()
+    statsView.render()

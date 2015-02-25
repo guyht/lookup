@@ -34,11 +34,24 @@ app.use(express.static('./public'))
 io.on 'connection', (sock) ->
     log.info "Handling socket.io connection"
 
+    # Send stat data on initial connection
+    cache.stats.get (err, data) ->
+        if err or !data then return
+        log.info "Sending stats"
+        io.emit 'stats', data
+
     sock.on 'lookup', (query, cb) ->
         # Get data from API
         log.info "Looking up #{query}"
         lookup query, (err, data) ->
             cb null, data
+
+        # Now we have sent back the data, we also want to emmit
+        # the new stats
+        cache.stats.get (err, data) ->
+            if err or !data then return
+            log.info "Sending stats"
+            io.emit 'stats', data
 
 # This is a 1 page shop, so just do a catchall
 app.all '/', (req, res) ->
@@ -90,6 +103,11 @@ lookup = (query, cb) ->
                     # Lookup monster
                     spawn './monster-trunk', [query], {}, (err, monster) ->
                         log.debug monster
+
+                        # If err or null, return now
+                        if err or !monster
+                            log.error "Oops, something bad happened :("
+                            return cb true, null
 
                         # Lets have a string
                         monsterStr = monster.toString()
