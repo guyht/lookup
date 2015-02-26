@@ -4,6 +4,7 @@ web:
         - redis
     ports:
         - "8090:8080"
+    restart: always
 redis:
     image: redis
-    
+    restart: always
