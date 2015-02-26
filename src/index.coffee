@@ -56,6 +56,14 @@ io.on 'connection', (sock) ->
             log.info "Sending stats"
             io.emit 'stats', data
 
+        # Send number of connected clients
+        # Do this on connection and disconnect
+        log.info  io.sockets.clients().length + 'clients connected'
+        sock.on 'disconnect' ->
+            log.info "Client disconnected"
+            log.info  io.sockets.clients().length + 'clients connected'
+
+
 # This is a 1 page shop, so just do a catchall
 app.all '/', (req, res) ->
     log.info "Serving request"
