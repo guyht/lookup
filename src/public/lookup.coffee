@@ -104,7 +104,7 @@ $ ->
                     #c = if terms.length <= 5 then terms.length else 5
 
                     for t in terms
-                        r.push '<li><a href="#term/' + t.term + '">' + t.term + '</a> - ' + t.count + ' hits </li>'
+                        r.push '<li><a href="#term/' + t.term + '">' + t.term + '</a>  </li>'
 
                     return r.join ''
             )
