@@ -48,7 +48,8 @@ $ ->
                 updateMethod: 'html'
                 onGet: (val) ->
                     # If no monster then return nothing
-                    if !val then return ''
+                    if !val or !val.length
+                        return '<h4>No results</h4>'
 
                     r = '<ol>'
                     for v in val
@@ -74,7 +75,7 @@ $ ->
             @options.router.navigate 'term/' + @model.get('term')
             @_loadAnim true
             socket.emit 'lookup', @model.get('term'), (err, res) =>
-                if err or !res then return # An error occured server side
+                if err then return # An error occured server side
 
                 @model.set res
                 @_loadAnim false

@@ -44,7 +44,10 @@ io.on 'connection', (sock) ->
         # Get data from API
         log.info "Looking up #{query}"
         lookup query, (err, data) ->
+
+            # Trigger callback
             cb null, data
+
 
         # Now we have sent back the data, we also want to emmit
         # the new stats
@@ -66,16 +69,19 @@ app.all '/stat', (req, res) ->
 # Func to lookup
 lookup = (query, cb) ->
 
+    # Register query hit
     cache.stats.query()
-    cache.stats.term query
 
     # Check cache
     cache.get query, (err, data) ->
         if data
             # Cache hit
             log.info "Cache HIT"
+
+            # Save stats
             cache.stats.cacheHit()
 
+            cache.stats.term query
             cb null, JSON.parse data
 
         else # Cache miss
@@ -97,7 +103,7 @@ lookup = (query, cb) ->
                     # If 404, then we had no result
                     if data.status is 404
                         log.info "404 status - no result"
-                        cb null, {}
+                        return cb null, (definitions: [])
 
 
                     # Lookup monster
@@ -124,6 +130,7 @@ lookup = (query, cb) ->
                             re.monster = ansi_up.ansi_to_html monsterStr
 
                         # Cache the result
+                        cache.stats.term query
                         cache.set query, JSON.stringify re
 
                         # Send back to the client
