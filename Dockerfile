@@ -19,7 +19,7 @@ RUN git checkout origin/dcss015
 # Checkout crawl
 RUN git clone https://gitorious.org/crawl/crawl.git crawl-ref
 WORKDIR crawl-ref
-RUN git checkout 0.15.2
+RUN git checkout 0.16.0
 RUN git submodule init && git submodule update
 
 WORKDIR /dcss/monster-trunk
