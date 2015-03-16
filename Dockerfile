@@ -14,12 +14,11 @@ RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex libl
 # Checkout monster-trunk
 RUN git clone https://github.com/guyht/monster-trunk.git
 WORKDIR monster-trunk
-RUN git checkout origin/dcss015
+RUN git checkout 6937dfd0
 
 # Checkout crawl
 RUN git clone https://gitorious.org/crawl/crawl.git crawl-ref
 WORKDIR crawl-ref
-RUN git checkout 0.16.0
 RUN git submodule init && git submodule update
 
 WORKDIR /dcss/monster-trunk
