@@ -2,7 +2,7 @@
 FROM ubuntu
 
 MAINTAINER Guy <guyht@me.com>
-RUN ls -a
+
 # Base folder
 RUN mkdir dcss
 WORKDIR dcss
@@ -14,7 +14,7 @@ RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex libl
 # Checkout monster-trunk
 RUN git clone https://github.com/guyht/monster-trunk.git
 WORKDIR monster-trunk
-RUN git checkout 6937dfd0
+RUN git checkout bleeding-edge-crawl
 
 # Checkout crawl
 RUN git clone https://gitorious.org/crawl/crawl.git crawl-ref
