@@ -39,7 +39,7 @@ ADD . /dcss/lookup
 WORKDIR ./lookup
 
 # Symlink monster-trunk
-RUN ln -s ../monster-trunk/monster-stable monster-trunk
+RUN ln -s ../monster-trunk/monster-trunk .
 
 # Install dependencies
 RUN npm install -g gulp
