@@ -2,7 +2,7 @@
 FROM ubuntu
 
 MAINTAINER Guy <guyht@me.com>
-
+RUN ls -a
 # Base folder
 RUN mkdir dcss
 WORKDIR dcss

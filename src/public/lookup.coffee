@@ -49,7 +49,7 @@ $ ->
                 onGet: (val) ->
                     # If no monster then return nothing
                     if !val or !val.length
-                        return '<h4>No results</h4>'
+                        return '<h5>No results</h5>'
 
                     r = '<ol>'
                     for v in val
@@ -60,6 +60,22 @@ $ ->
                     r = r.replace /{(.+?)}/g, "<a href='#term/$1'>$1</a>"
 
                     return r
+            )
+            '.learndb-search': (
+                observe: 'terms'
+                updateMethod: 'html'
+                onGet: (val) ->
+                    if !val or !val.length
+                        return '<h5>No results</h5>'
+
+                    if val.length > 50
+                        return '<h5>Too many results to display</h5>'
+
+                    r = []
+                    for v in val
+                       r.push "<a href='/#term/#{v}'>#{v}</a>"
+
+                    return r.join ' ,'
             )
         )
 

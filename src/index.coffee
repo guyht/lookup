@@ -7,6 +7,7 @@ express = require 'express'
 server = require('http')
 socket = require('socket.io')
 ansi_up = require 'ansi_up'
+_ = require 'lodash'
 
 spawn = require './spawn_child'
 cache = require './cache'
@@ -98,51 +99,67 @@ lookup = (query, cb) ->
             # Not cached, look it up
             request.get api_base
                 .query (term: query)
-                .end (err, data) ->
+                .end (err, data_term) ->
                     if err
                         # Generally means not found (for some reason we dont return JSON here... this is a bug really)
                         log.error "Error occured making request to learndb API"
                         log.error err
                         return cb err
 
-                    log.info "Got good response from server - #{data.status}"
-                    log.debug data.text
+                    log.info "Got good response from server - #{data_term.status}"
+                    log.debug data_term.text
 
                     # If 404, then we had no result
-                    if data.status is 404
+                    if data_term.status is 404
                         log.info "404 status - no result"
-                        return cb null, (definitions: [])
+                        data_term.body = (definitions: [])
 
+                    request.get api_base
+                        .query (search: query)
+                        .end (err, data_query) ->
 
-                    # Lookup monster
-                    spawn './monster-trunk', [query], {}, (err, monster) ->
-                        log.debug monster
+                            if err
+                                log.error "Error occured making search request to learndb API"
+                                log.error err
+                                return cb err
 
-                        # If err or null, return now
-                        if err or !monster
-                            log.error "Oops, something bad happened :("
-                            return cb true, null
+                            log.info "Got good response from server - #{data_query.status}"
+                            log.debug data_query.text
 
-                        # Lets have a string
-                        monsterStr = monster.toString()
+                            # If 404, then we had no result
+                            if data_query.status is 404
+                                log.info "404 status - no result"
+                                data_query.body = (terms: [])
 
-                        # Setup an object we can send back to the client
-                        re = data.body
+                            # Lookup monster
+                            spawn './monster-trunk', [query], {}, (err, monster) ->
+                                log.debug monster
 
-                        # Was monster found?
-                        if monsterStr.match 'unknown monster:'
-                            # Return a null value
-                            re.monster = null
-                        else
-                            # Add the monster and render the console escape codes to html
-                            re.monster = ansi_up.ansi_to_html monsterStr
+                                # If err or null, return now
+                                if err or !monster
+                                    log.error "Oops, something bad happened :("
+                                    return cb true, null
 
-                        # Cache the result
-                        cache.stats.term query
-                        cache.set query, JSON.stringify re
+                                # Lets have a string
+                                monsterStr = monster.toString()
 
-                        # Send back to the client
-                        cb null, re
+                                # Setup an object we can send back to the client
+                                re = _.extend data_query.body, data_term.body
+
+                                # Was monster found?
+                                if monsterStr.match 'unknown monster:'
+                                    # Return a null value
+                                    re.monster = null
+                                else
+                                    # Add the monster and render the console escape codes to html
+                                    re.monster = ansi_up.ansi_to_html monsterStr
+
+                                # Cache the result
+                                cache.stats.term query
+                                cache.set query, JSON.stringify re
+
+                                # Send back to the client
+                                cb null, re
 
 
 ser.listen port
