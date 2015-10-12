@@ -132,7 +132,7 @@ lookup = (query, cb) ->
                                 data_query.body = (terms: [])
 
                             # Lookup monster
-                            spawn './monster-trunk', [query], {}, (err, monster) ->
+                            spawn './monster-stable', [query], {}, (err, monster) ->
                                 log.debug monster
 
                                 # If err or null, return now
