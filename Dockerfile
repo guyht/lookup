@@ -9,38 +9,37 @@ WORKDIR dcss
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex liblua5.1-0-dev libsqlite3-dev libz-dev pkg-config libsdl2-image-dev libsdl2-mixer-dev libsdl2-dev libfreetype6-dev libpng-dev ttf-dejavu-core
-
-# Checkout monster-trunk
-RUN git clone https://github.com/guyht/monster-trunk.git
-WORKDIR monster-trunk
-RUN git checkout dcss016
-
-# Checkout crawl
-RUN git clone https://github.com/crawl/crawl.git crawl-ref
-WORKDIR crawl-ref
-RUN git checkout 0.16.2
-RUN git submodule init && git submodule update
-
-WORKDIR /dcss/monster-trunk
-
-# Make monster-trunk
-RUN make
-
-# Base dir
-WORKDIR ../
-
-# Install nodejs
-RUN apt-get install -y curl
+RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex liblua5.1-0-dev libsqlite3-dev libz-dev pkg-config
 RUN curl -sL https://deb.nodesource.com/setup | bash -
 RUN apt-get install -y nodejs
 
+# Checkout crawl
+RUN git clone https://github.com/crawl/crawl.git
+WORKDIR /dcss/crawl
+RUN git checkout 0.20.1
+RUN git submodule init && git submodule update
+
+# Uberhack
+# Because monster-main does not recognise nodejs as a tty, it wont include the
+# right color codes.  Small hack to force tty type responses which are
+# correctly parsed by node-tty
+WORKDIR /dcss/crawl/crawl-ref/source/util/monster
+RUN sed -i 's/isatty(1)/true/' monster-main.cc
+
+WORKDIR /dcss/crawl
+
+# Make monster
+RUN make monster
+
+# Base dir
+WORKDIR /dcss
+
 # Checkout lookup code
 ADD . /dcss/lookup
-WORKDIR ./lookup
+WORKDIR /dcss/lookup
 
-# Symlink monster-trunk
-RUN ln -s ../monster-trunk/monster-stable .
+# Symlink monster-trunk
+RUN ln -s ../crawl/crawl-ref/source/util/monster/monster monster-stable
 
 # Install dependencies
 RUN npm install -g gulp
@@ -52,3 +51,4 @@ EXPOSE 8080
 
 # Setup entrypoint
 CMD ["node", "lib/index"]
+
