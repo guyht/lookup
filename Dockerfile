@@ -10,7 +10,7 @@ WORKDIR dcss
 # Install dependencies
 RUN apt-get update -y
 RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex liblua5.1-0-dev libsqlite3-dev libz-dev pkg-config
-RUN curl -sL https://deb.nodesource.com/setup | bash -
+RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
 RUN apt-get install -y nodejs
 
 # Checkout crawl
@@ -26,7 +26,7 @@ RUN git submodule init && git submodule update
 WORKDIR /dcss/crawl/crawl-ref/source/util/monster
 RUN sed -i 's/isatty(1)/true/' monster-main.cc
 
-WORKDIR /dcss/crawl
+WORKDIR /dcss/crawl/crawl-ref/source
 
 # Make monster
 RUN make monster
