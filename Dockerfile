@@ -9,15 +9,18 @@ WORKDIR dcss
 
 # Install dependencies
 RUN apt-get update -y
-RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex liblua5.1-0-dev libsqlite3-dev libz-dev pkg-config
-RUN curl -sL https://deb.nodesource.com/setup_4.x | bash -
+RUN apt-get install -y git curl build-essential libncursesw5-dev bison flex liblua5.1-0-dev libsqlite3-dev libz-dev pkg-config python-pip
+RUN curl -sL https://deb.nodesource.com/setup_13.x | bash -
 RUN apt-get install -y nodejs
 
 # Checkout crawl
 RUN git clone https://github.com/crawl/crawl.git
 WORKDIR /dcss/crawl
-RUN git checkout 0.20.1
+RUN git checkout 0.24.0
 RUN git submodule init && git submodule update
+
+# YAML Now Required
+RUN pip install pyyaml
 
 # Uberhack
 # Because monster-main does not recognise nodejs as a tty, it wont include the
